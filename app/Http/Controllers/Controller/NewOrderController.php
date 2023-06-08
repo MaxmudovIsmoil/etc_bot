@@ -9,14 +9,13 @@ use App\Models\Order;
 use App\Traits\CacheTrait;
 use App\Traits\StepTrait;
 use Illuminate\Support\Facades\Cache;
-use PHPUnit\TextUI\Help;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Attributes\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
-use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardRemove;
+
 
 class NewOrderController extends Controller
 {
@@ -46,117 +45,79 @@ class NewOrderController extends Controller
         switch ($user_step) {
             case 'order_fio':
             {
-                Cache::put($bot->userId(), ['order_fio' => $bot->message()->text]);
-
-                $text = Helper::getText()->order_address;
-                $this->sendStepMessage($bot, $text);
-
-                $this->set_user_step($bot, 'order_address');
+                $this->order_full_name($bot);
                 break;
             }
             case 'order_address':
             {
-                $this->cache_push($bot, ['order_address' => $bot->message()->text]);
-
-                $text = Helper::getText()->order_phone;
-                $this->sendStepMessage($bot, $text);
-
-                $this->set_user_step($bot, 'order_phone');
+                $this->order_address($bot);
                 break;
             }
             case 'order_phone':
             {
-                if ($bot->message()->contact)
-                {
-                    $this->cache_push($bot, ['order_phone' => $bot->message()->contact->phone_number]);
-
-                    $text = Helper::getText()->order_location;
-                    $this->sendStepMessage($bot, $text);
-
-                    $this->set_user_step($bot, 'order_location');
-                }
-                else
-                {
-                    if (Helper::checkPhoneNumber($bot->message()->text)) {
-                        // ok
-                        $this->cache_push($bot, ['order_phone' => $bot->message()->text]);
-
-                        $text = Helper::getText()->order_location;
-                        $this->sendStepMessage($bot, $text);
-
-                        $this->set_user_step($bot, 'order_location');
-                    }
-                    else {
-                        // no
-                        $bot->sendMessage(Helper::getText()->order_phone_warning);
-                    }
-                }
-
-                break;
-            }
-            case 'order_location':
-            {
-                if ($bot->message()->location)
-                {
-                    $this->cache_push($bot, [
-                        'longitude' => $bot->message()->location->longitude,
-                        'latitude'  => $bot->message()->location->latitude,
-                    ]);
-
-                    $bot->sendMessage(json_encode($bot->message()->location));
-
-                    $this->set_user_step($bot, 'order_done');
-
-                    $this->show_order_list($bot);
-                }
-                else
-                {
-                    // no location
-                    $bot->sendMessage(Helper::getText()->order_location_warning, [
-                        'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)
-                            ->addRow(
-                                KeyboardButton::make('⬅️ Назад')
-                            ),
-                        'parse_mode' => ParseMode::HTML
-                    ]);
-                }
-
-                break;
-            }
-            default:
-            {
-                $this->sendStepMessage($bot, 'any text');
+                $this->order_phone($bot);
                 break;
             }
         }
 
     }
 
-    public function sendStepMessage(Nutgram $bot, $text)
+    public function order_full_name(Nutgram $bot)
     {
-        if ($this->get_user_step($bot) == 'order_address')
+        Cache::put($bot->userId(), ['order_fio' => $bot->message()->text]);
+
+        $bot->sendMessage(Helper::getText()->order_address, [
+            'parse_mode' => ParseMode::HTML
+        ]);
+
+        $this->set_user_step($bot, 'order_address');
+    }
+
+
+    public function order_address(Nutgram $bot)
+    {
+        $this->cache_push($bot, ['order_address' => $bot->message()->text]);
+
+        $bot->sendMessage(Helper::getText()->order_phone, [
+            'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)
+                ->addRow(
+                    KeyboardButton::make('Phone', request_contact: true),
+                    KeyboardButton::make('⬅️ Назад'),
+                ),
+            'parse_mode' => ParseMode::HTML
+        ]);
+
+        $this->set_user_step($bot, 'order_phone');
+    }
+
+
+    public function order_phone($bot)
+    {
+        if ($bot->message()->contact)
         {
-            $bot->sendMessage($text, [
-                'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)
-                    ->addRow(
-                        KeyboardButton::make('Phone', request_contact: true),
-                        KeyboardButton::make('⬅️ Назад'),
-                    ),
-                'parse_mode' => ParseMode::HTML
-            ]);
+            $this->cache_push($bot, ['order_phone' => $bot->message()->contact->phone_number]);
+
+            $this->set_user_step($bot, 'order_done');
+
+            $this->show_order_list($bot);
         }
         else
         {
-            $bot->sendMessage($text, [
-                'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)
-                    ->addRow(
-                        KeyboardButton::make('⬅️ Назад')
-                    ),
-                'parse_mode' => ParseMode::HTML
-            ]);
-        }
+            if (Helper::checkPhoneNumber($bot->message()->text)) {
+                // ok
+                $this->cache_push($bot, ['order_phone' => $bot->message()->text]);
 
+                $this->set_user_step($bot, 'order_done');
+
+                $this->show_order_list($bot);
+            }
+            else {
+                // no
+                $bot->sendMessage(Helper::getText()->order_phone_warning);
+            }
+        }
     }
+
 
 
     public function show_order_list($bot)
@@ -166,10 +127,10 @@ class NewOrderController extends Controller
         $bot->sendMessage($text, [
             'reply_markup' => InlineKeyboardMarkup::make()
                 ->addRow(
-                    InlineKeyboardButton::make('✅ Сохранять', callback_data: 'order_list_save'),
-                    InlineKeyboardButton::make('❌ Отмена', callback_data: 'order_list_cancel')
+                    InlineKeyboardButton::make('✅ Сохранить', callback_data: 'order_list_save'),
+                    InlineKeyboardButton::make('❌ Отменить', callback_data: 'order_list_cancel')
                 ),
-            'parse_mode' => ParseMode::HTML
+            'parse_mode' => ParseMode::HTML,
         ]);
     }
 
@@ -182,23 +143,31 @@ class NewOrderController extends Controller
             'phone' => Cache::get($bot->userId())['order_phone'],
             'address' => Cache::get($bot->userId())['order_address'],
             'chat_id' => $bot->userId(),
-            'location' => null,
-            'longitude' => (Cache::get($bot->userId())['longitude']) ?: null,
-            'latitude' => (Cache::get($bot->userId())['latitude']) ?: null,
         ];
 
-//         SendMailJob::dispatch($data)->onQueue('new_order');
+         SendMailJob::dispatch($data)->onQueue('new_order');
 
         $text = $this->text_list($bot, "✅");
         $bot->editMessageText($text, [
             'parse_mode' => ParseMode::HTML
         ]);
 
-        $bot->sendMessage('successfully congratulations');
+
+        $bot->sendMessage(Helper::getText()->new_order_saved, [
+            'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)->addRow(
+                KeyboardButton::make('🧾 Тариф'),
+                KeyboardButton::make('📝 Новая заявка'),
+            ),
+            'parse_mode' => ParseMode::HTML,
+        ]);
+
+        $this->set_user_step($bot, 'back');
 
         // save db
         Order::create($data);
 
+        // inline btn click, clock icon hide
+        $bot->answerCallbackQuery();
 
         // clear cache
         $this->cache_clear($bot);
@@ -207,6 +176,9 @@ class NewOrderController extends Controller
 
     public function order_list_cancel(Nutgram $bot)
     {
+        // inline btn click, clock icon hide
+        $bot->answerCallbackQuery();
+
         $text = $this->text_list($bot, "❌");
 
         $bot->editMessageText($text, [
@@ -215,9 +187,15 @@ class NewOrderController extends Controller
 
         $this->cache_clear($bot);
 
-        $bot->sendMessage(Helper::getText()->order_no_btn_text);
+        $bot->sendMessage(Helper::getText()->order_no_btn_text, [
+            'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)->addRow(
+                KeyboardButton::make('🧾 Тариф'),
+                KeyboardButton::make('📝 Новая заявка'),
+            ),
+            'parse_mode' => ParseMode::HTML,
+        ]);
 
-        $this->newOrder($bot);
+        $this->set_user_step($bot, 'back');
     }
 
 
@@ -227,8 +205,7 @@ class NewOrderController extends Controller
         return "<b>". Helper::getText()->order_list_show_title."</b>  ".$icon."  \n"
             . Helper::getText()->order_fio_key . Cache::get($bot->userId())['order_fio'] . "\n"
             . Helper::getText()->order_address_key . Cache::get($bot->userId())['order_address'] . "\n"
-            . Helper::getText()->order_phone_key . Cache::get($bot->userId())['order_phone'] . "\n"
-            . Helper::getText()->order_location_key . "⤴️\n";
+            . Helper::getText()->order_phone_key . Cache::get($bot->userId())['order_phone'];
     }
 
 }

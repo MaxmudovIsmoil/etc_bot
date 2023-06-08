@@ -18,7 +18,8 @@ trait CacheTrait
 
     public function cache_clear(Nutgram $bot)
     {
-        Cache::forget($bot->userId());
+        if(Cache::has($bot->userId()))
+            Cache::forget($bot->userId());
     }
 
 

@@ -21,28 +21,25 @@
 </head>
 <body>
 
+<h4>Новый заказ</h4>
+
+<p><b>Имя:</b> {{ $full_name }}</p>
+
+<p><b>Адрес:</b> {{ $address }}</p>
+
+<p><b>Номер телефона:</b> {{ $phone }}</p>
+
+
+_______________________
+
+
 <h4>New Order</h4>
 
-{{--<p><b>Full name:</b> {{ $details['full_name'] }}</p>--}}
+<p><b>Full name:</b> {{ $full_name }}</p>
 
-{{--<p><b>Address:</b> {{ $details['address'] }}</p>--}}
+<p><b>Address:</b> {{ $address }}</p>
 
-{{--<p><b>Phone:</b> {{ $details['phone'] }}</p>--}}
-
-{{--<p><b>Location:</b> {{ $details['longitude'] }}, {{ $details['latitude'] }}</p>--}}
-
-{{--________________________________________________--}}
-
-
-{{--<h4>New Order</h4>--}}
-
-{{--<p><b>Full name:</b> {{ $details['full_name'] }}</p>--}}
-
-{{--<p><b>Address:</b> {{ $details['address'] }}</p>--}}
-
-{{--<p><b>Phone:</b> {{ $details['phone'] }}</p>--}}
-
-{{--<p><b>Location:</b> {{ $details['longitude'] }}, {{ $details['latitude'] }}</p>--}}
+<p><b>Phone number:</b> {{ $phone }}</p>
 
 
 </body>

@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Mail\OrderShipped;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,13 +14,14 @@ class SendMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $data;
+
     /**
      * Create a new job instance.
      */
-    public function __construct($details)
+    public function __construct($data)
     {
-        $this->details = $details;
-        $this->details['email'] = env('MAIL_FROM_ADDRESS');
+        $this->data = $data;
     }
 
     /**
@@ -29,8 +29,10 @@ class SendMailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $email = new OrderShipped($this->details);
+        $mail = env('MAIL_FROM_ADDRESS');
 
-        Mail::to($this->details['email'])->send($email);
+        $send = new OrderShipped($this->data);
+
+        Mail::to($mail)->send($send);
     }
 }

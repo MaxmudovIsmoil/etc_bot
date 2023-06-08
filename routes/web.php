@@ -4,7 +4,7 @@ use App\Jobs\SendMailJob;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller\RunController;
 use App\Http\Controllers\Controller\ApiController;
-use Mail;
+//use Mail;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -26,15 +26,10 @@ Route::post('/webhook', [RunController::class, '__invoke']);
 
 Route::get('login', [ApiController::class, 'login']);
 
+Route::get('info', [ApiController::class, 'info']);
 
-Route::get('/mail', function() {
 
-    $details = [
-        'username' => 'Ismoil',
-        'password' => 123,
-    ];
-    \Illuminate\Support\Facades\Mail::to('sales@gmail.com')->send(new \App\Mail\OrderShipped($details));
-
-//    $data = [];
-//    SendMailJob::dispatch($data)->onQueue('new_order');
-});
+//Route::get('send', function() {
+//    $details = [ 'username' => 'Ismoil', 'password' => 123 ];
+//    \Illuminate\Support\Facades\Mail::to('sales@gmail.com')->send(new \App\Mail\OrderShipped($details));
+//});
