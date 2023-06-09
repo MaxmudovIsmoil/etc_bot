@@ -16,7 +16,7 @@ class RunController extends Controller
      */
     public function __invoke(Nutgram $bot)
     {
-        $bot->registerCommand(StartCommand::class)->description('Начинать!');
+        $bot->registerCommand(StartCommand::class)->description('Начать!');
         $bot->run();
     }
 

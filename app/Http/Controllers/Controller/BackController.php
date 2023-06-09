@@ -26,7 +26,7 @@ class BackController extends Controller
         $bot->sendMessage($text, [
             'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)->addRow(
                 KeyboardButton::make('🧾 Тариф'),
-                KeyboardButton::make('📝 Новая заявка'),
+                KeyboardButton::make('📝 Подключить услугу'),
             ),
             'parse_mode' => ParseMode::HTML,
         ]);

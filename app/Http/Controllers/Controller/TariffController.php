@@ -112,7 +112,7 @@ class TariffController extends Controller
         $bot->sendMessage($text, [
             'reply_markup' => InlineKeyboardMarkup::make()
                 ->addRow(
-                    InlineKeyboardButton::make('ℹ️ Show Info', callback_data: 'show_info')
+                    InlineKeyboardButton::make('ℹ️ Показать информацию', callback_data: 'show_info')
                 ),
             'parse_mode' => ParseMode::HTML,
         ]);
@@ -141,7 +141,7 @@ class TariffController extends Controller
         $bot->sendMessage(Helper::getText()->tariff_done_text, [
             'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)->addRow(
                 KeyboardButton::make('🧾 Тариф'),
-                KeyboardButton::make('📝 Новая заявка'),
+                KeyboardButton::make('📝 Подключить услугу'),
             ),
             'parse_mode' => ParseMode::HTML,
         ]);

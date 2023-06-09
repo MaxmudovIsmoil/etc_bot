@@ -33,7 +33,7 @@ $bot->onCallbackQueryData('show_info', [TariffController::class, 'show_info']);
 
 /*** ################################# New Order ################################# **/
 
-$bot->onText("📝 Новая заявка", [NewOrderController::class, 'newOrder']);
+$bot->onText("📝 Подключить услугу", [NewOrderController::class, 'newOrder']);
 
 $bot->onMessage([NewOrderController::class, 'order_list']);
 
