@@ -29,7 +29,13 @@ Route::get('login', [ApiController::class, 'login']);
 Route::get('info', [ApiController::class, 'info']);
 
 
-//Route::get('send', function() {
-//    $details = [ 'username' => 'Ismoil', 'password' => 123 ];
-//    \Illuminate\Support\Facades\Mail::to('sales@gmail.com')->send(new \App\Mail\OrderShipped($details));
-//});
+Route::get('send', function() {
+    $details = [
+        'full_name' => 'Ismoil',
+        'address' => "Yashnobod tuzel 12/23",
+        'phone' => 901234567,
+    ];
+
+    \Illuminate\Support\Facades\Mail::to('sales@gmail.com')->send(new \App\Mail\OrderShipped($details));
+    dd('okey');
+});

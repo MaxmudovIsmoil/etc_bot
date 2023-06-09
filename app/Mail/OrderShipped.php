@@ -40,7 +40,7 @@ class OrderShipped extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.OrderShipped',
+            view: 'emails.orderShipped',
             with: [
                 'full_name' => $this->data['full_name'],
                 'phone' => $this->data['phone'],
