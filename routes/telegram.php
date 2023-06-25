@@ -2,11 +2,15 @@
 /** @var SergiX44\Nutgram\Nutgram $bot */
 
 
+use App\Helpers\Helper;
 use SergiX44\Nutgram\Nutgram;
-use App\Http\Controllers\Controller\BackController;
 use App\Http\Controllers\Controller\NewOrderController;
-use App\Http\Controllers\Controller\TariffController;
-use Illuminate\Support\Facades\Cache;
+use App\Telegram\Commands\StartCommand;
+use App\Telegram\Conversation\TariffConversation;
+use App\Telegram\Conversation\NewOrderConversation;
+use SergiX44\Nutgram\Telegram\Attributes\ParseMode;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,37 +22,28 @@ use Illuminate\Support\Facades\Cache;
 |
 */
 
-/*** ################################# Tariff ################################# **/
+$bot->onCommand('start', StartCommand::class);
 
-$bot->onText("🧾 Тариф", [TariffController::class, 'tariff']);
-
-$bot->onMessage([TariffController::class, 'tariff_list']);
-
-$bot->onCallbackQueryData('show_info', [TariffController::class, 'show_info']);
-
-/*** ################################# ./Tariff ############################### **/
-
-
-
+$bot->onText("🧾 Тариф", TariffConversation::class);
 
 /*** ################################# New Order ################################# **/
 
-$bot->onText("📝 Подключить услугу", [NewOrderController::class, 'newOrder']);
+$bot->onText("📝 Подключить услугу", NewOrderConversation::class);
 
-$bot->onMessage([NewOrderController::class, 'order_list']);
-
-$bot->onCallbackQueryData('order_list_save', [NewOrderController::class, 'order_list_save']);
-
-$bot->onCallbackQueryData('order_list_cancel', [NewOrderController::class, 'order_list_cancel']);
+$bot->onCallbackQuery([NewOrderConversation::class, 'order_save_or_cancel']);
 
 /*** ################################ ./New Order ################################# **/
 
 
-$bot->onText("⬅️ Назад", [BackController::class, 'back']);
-
-
-$bot->onText("cache", function(Nutgram $bot) {
-    $bot->sendMessage(json_encode(Cache::get($bot->userId())));
+$bot->onText("⬅️ Назад", function (Nutgram $bot) {
+    $text = Helper::getText()->back;
+    $bot->sendMessage($text, [
+        'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)->addRow(
+            KeyboardButton::make('🧾 Тариф'),
+            KeyboardButton::make('📝 Подключить услугу'),
+        ),
+        'parse_mode' => ParseMode::HTML,
+    ]);
 });
 
 
@@ -59,6 +54,9 @@ $bot->onException(function (Nutgram $bot, \Throwable $exception) {
     $bot->sendMessage('Error: ' . $exception->getMessage(), ['chat_id' => $chat_id]);
 });
 
+//$bot->onText("cache", function(Nutgram $bot) {
+//    $bot->sendMessage(json_encode(Cache::get($bot->userId())));
+//});
 
 //$bot->fallback(function (Nutgram $bot) {
 //    $bot->sendMessage('Sorry, I don\'t understand.');

@@ -15,7 +15,7 @@ class OrderShipped extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $data;
+    public object $data;
     /**
      * Create a new message instance.
      */
@@ -42,9 +42,9 @@ class OrderShipped extends Mailable
         return new Content(
             view: 'emails.orderShipped',
             with: [
-                'full_name' => $this->data['full_name'],
-                'phone' => $this->data['phone'],
-                'address' => $this->data['address'],
+                'full_name' => $this->data->full_name,
+                'phone' => $this->data->phone,
+                'address' => $this->data->address,
             ],
         );
     }

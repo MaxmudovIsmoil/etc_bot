@@ -17,6 +17,7 @@ class Order extends Model
         'longitude',
         'latitude',
         'chat_id',
+        'status'
     ];
 
 }

@@ -14,7 +14,7 @@ class SendMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $data;
+    protected object $data;
 
     /**
      * Create a new job instance.

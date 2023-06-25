@@ -1,0 +1,104 @@
+:root {
+	--danger-d: #A53322;
+	--danger-d-hover: #7e3024;
+	--white: #fff;
+	--hover: #d0e8ff;
+	--dark: #000;
+	--white-gray: #eeeeee;
+	--shadow-llx: 0px 0px 10px 3px rgba(34, 60, 80, 0.14);
+}
+
+html, body {
+	background-color: var(--white);
+}
+
+.center-block {
+	position: absolute;
+	top: 45%;
+	left:50%;
+	transform: translate(-50%,-50%);
+}
+
+.shadow-llx {
+	-webkit-box-shadow: var(--shadow-llx);
+	-moz-box-shadow: var(--shadow-llx);
+	box-shadow: var(--shadow-llx);
+}
+
+.font-500 {
+	font-weight: 500;
+}
+
+.fs-15 {
+	font-size: 15px;
+}
+
+.fs-16 {
+	font-size: 16px;
+}
+
+.w-5 {
+	width: 5rem;
+}
+
+.w-8 {
+	width: 8rem;
+}
+
+.admin-icon {
+	font-size: 13rem;
+	margin: 4rem 4.5rem;
+}
+
+.text-danger-d {
+	color: var(--danger-d);
+	font-weight: 600;
+	padding: 6px 8px;
+	transition: .3s ease-in-out;
+	border-radius: 12px;
+}
+
+.text-danger-d:hover {
+	background-color: var(--hover);
+	color: var(--danger-d);
+}
+
+.text-small {
+	font-size: 14px;
+	line-height: 1.42857;
+	margin: 4px 0 0 0;
+	text-align: left;
+	font-weight: 600;
+}
+
+
+.btn-danger-d {
+	background-color: var(--danger-d);
+	border-color: var(--danger-d);
+	color: var(--white);
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.btn-danger-d:hover {
+	background-color: var(--danger-d-hover);
+	border-color: var(--danger-d-hover);
+	color: var(--white);
+}
+
+.card {
+	background: var(--white);
+}
+
+.form-control {
+	background: transparent;
+}
+
+.form-control:focus {
+	box-shadow: 0 0 0 0.10rem var(--danger-d);
+	border-color: var(--danger-d);
+}
+
+.bg-danger-d {
+	color: var(--danger-d-hover);
+}

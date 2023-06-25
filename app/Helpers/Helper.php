@@ -6,12 +6,23 @@ use Illuminate\Support\Str;
 
 class Helper
 {
+
+    public static function phone_format($phone): string
+    {
+        if (mb_substr($phone, 0, 4) == '+998')
+            $response = mb_substr($phone, 0, 4)." (".mb_substr($phone, 4, 2).") ".mb_substr($phone, 6, 3)."-".mb_substr($phone, 9, 2)."-".mb_substr($phone, -2);
+        else
+            $response = "(".mb_substr($phone, 0, 2).") ".mb_substr($phone, 2, 3)."-".mb_substr($phone, 5, 2)."-".mb_substr($phone, -2);
+
+        return $response;
+
+    }
     public static function getName($bot = null)
     {
         return ($bot == null) ?: $bot->user()->first_name ?: ($bot->user()->last_name ?: $bot->user()->username);
     }
 
-    public static function checkPhoneNumber($phone)
+    public static function checkPhoneNumber($phone): bool
     {
         $phone_length = Str::length($phone);
 
@@ -27,19 +38,18 @@ class Helper
         return false;
     }
 
-    public static function phone_preg_much($phone)
+    public static function phone_preg_much($phone): bool
     {
         return preg_match("/^[0-9]{9}$/", $phone) ? true : false;
     }
 
 
-    public static function getText($bot = null)
+    public static function getText($bot = null): object
     {
         return (object)[
             'start' => "<b>" . self::getName($bot) . "</b>. Добро пожаловать в бот ИСТ Телеком",
-            'tariff' => "Введите логин и пароль!",
-
-            'order' => "<b>Пожалуйста вышлите запрос, в формате:</b>\n\n1. Ф.И.О. заявителя:\n2. Адрес подключения:\n3. Контактный номер:\n4. Прикрепите местоположение:",
+//            'tariff' => "Введите логин и пароль!",
+//            'order' => "<b>Пожалуйста вышлите запрос, в формате:</b>\n\n1. Ф.И.О. заявителя:\n2. Адрес подключения:\n3. Контактный номер:\n4. Прикрепите местоположение:",
             'order_fio' => "1. Ф.И.О. заявителя:\n<i>(1 \ 3)</i>",
             'order_address' => "2. Адрес подключения:\n<i>(2 \ 3)</i>",
             'order_phone' => "3. Контактный номер:\nнапример: <i>901234567</i>\n<i>(3 \ 3)</i>",
@@ -53,14 +63,14 @@ class Helper
             'order_address_key' => "2. Адрес подключения: \t",
             'order_phone_key' => "3. Контактный номер: \t",
             'order_location_key' => "4. Прикрепите местоположение: \t",
-            "new_order_saved" => "Ваш заказ принят.\nНаши сотрудники свяжутся с вами.\nБлагодарим Вас за Ваше внимание!.",
+            "new_order_saved" => "Ваша заявка создана✅\nНаши специалисты свяжутся с вами в ближайшее время ☎️\nБлагодарим за ваше обращение😊",
 
             'start_to_again' => "<b>Начать заново</b>",
             'order_location_warning' => 'Пожалуйста, введите свое местоположение',
             'order_phone_warning' => 'Пожалуйста, введите свой номер телефона',
             'order_no_btn_text' => "Вы отменили свой заказ",
 
-            'tariff_login' => "Введите Ваш логин",
+            'tariff_login' => "Введите ваш логин",
             'tariff_password' => "Введите пароль",
             'show_balance' => "<b>Баланс:</b> ",
             "login_password_error" => "Login yoki parolda xatolik bor boshidan kiriting\nLogin!",
@@ -70,7 +80,7 @@ class Helper
             "tariff_address" => "<b>Адрес подключения:</b> \t",
             "tariff_code" => "<b>Тариф:</b> \t",
             "tariff_status" => "<b>Статус:</b> \t",
-            "tariff_done_text" => "За дополнительной информации обратитесь на номер: <b>+998 78 150 00 16</b>\nСпасибо что Вы с нами!",
+            "tariff_done_text" => "За дополнительной информации обратитесь на номер: <b>+998 78 150 00 00</b>\nСпасибо что Вы с нами!",
 
             "tariff_done_close_text" => "Для возврата в главное меню нажмите - Назад"
         ];

@@ -22,6 +22,11 @@ class NewOrderController extends Controller
 
     use StepTrait, CacheTrait;
 
+    public ?string $full_name;
+
+    public ?string $address;
+
+    public ?string $phone;
 
     public function newOrder(Nutgram $bot)
     {
@@ -64,7 +69,7 @@ class NewOrderController extends Controller
 
     public function order_full_name(Nutgram $bot)
     {
-        Cache::put($bot->userId(), ['order_fio' => $bot->message()->text]);
+        $this->full_name = $bot->message()->text;
 
         $bot->sendMessage(Helper::getText()->order_address, [
             'parse_mode' => ParseMode::HTML
@@ -76,7 +81,9 @@ class NewOrderController extends Controller
 
     public function order_address(Nutgram $bot)
     {
-        $this->cache_push($bot, ['order_address' => $bot->message()->text]);
+        $this->address = $bot->message()->text;
+
+        $bot->sendMessage($this->full_name);
 
         $bot->sendMessage(Helper::getText()->order_phone, [
             'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)
@@ -95,7 +102,7 @@ class NewOrderController extends Controller
     {
         if ($bot->message()->contact)
         {
-            $this->cache_push($bot, ['order_phone' => $bot->message()->contact->phone_number]);
+            $this->phone = $bot->message()->text;
 
             $this->set_user_step($bot, 'order_done');
 
@@ -105,7 +112,7 @@ class NewOrderController extends Controller
         {
             if (Helper::checkPhoneNumber($bot->message()->text)) {
                 // ok
-                $this->cache_push($bot, ['order_phone' => $bot->message()->text]);
+                $this->phone = $bot->message()->text;
 
                 $this->set_user_step($bot, 'order_done');
 
@@ -139,15 +146,15 @@ class NewOrderController extends Controller
     {
         // send mail
         $data = [
-            'full_name' => Cache::get($bot->userId())['order_fio'],
-            'phone' => Cache::get($bot->userId())['order_phone'],
-            'address' => Cache::get($bot->userId())['order_address'],
+            'full_name' => $this->full_name,
+            'phone' => $this->phone,
+            'address' => $this->address,
             'chat_id' => $bot->userId(),
         ];
 
-         SendMailJob::dispatch($data)->onQueue('new_order');
+        SendMailJob::dispatch($data)->onQueue('new_order');
 
-        $text = $this->text_list($bot, "✅");
+        $text = $this->text_list("✅");
         $bot->editMessageText($text, [
             'parse_mode' => ParseMode::HTML
         ]);
@@ -179,7 +186,7 @@ class NewOrderController extends Controller
         // inline btn click, clock icon hide
         $bot->answerCallbackQuery();
 
-        $text = $this->text_list($bot, "❌");
+        $text = $this->text_list("❌");
 
         $bot->editMessageText($text, [
             'parse_mode' => ParseMode::HTML
@@ -190,7 +197,7 @@ class NewOrderController extends Controller
         $bot->sendMessage(Helper::getText()->order_no_btn_text, [
             'reply_markup' => ReplyKeyboardMarkup::make(resize_keyboard: true)->addRow(
                 KeyboardButton::make('🧾 Тариф'),
-                KeyboardButton::make('📝 Новая заявка'),
+                KeyboardButton::make('📝 Подключить услугу'),
             ),
             'parse_mode' => ParseMode::HTML,
         ]);
@@ -200,12 +207,12 @@ class NewOrderController extends Controller
 
 
 
-    public function text_list(Nutgram $bot, $icon = null)
+    public function text_list($icon = null)
     {
         return "<b>". Helper::getText()->order_list_show_title."</b>  ".$icon."  \n"
-            . Helper::getText()->order_fio_key . Cache::get($bot->userId())['order_fio'] . "\n"
-            . Helper::getText()->order_address_key . Cache::get($bot->userId())['order_address'] . "\n"
-            . Helper::getText()->order_phone_key . Cache::get($bot->userId())['order_phone'];
+            . Helper::getText()->order_fio_key . $this->full_name . "\n"
+            . Helper::getText()->order_address_key . $this->address . "\n"
+            . Helper::getText()->order_phone_key . $this->phone;
     }
 
 }

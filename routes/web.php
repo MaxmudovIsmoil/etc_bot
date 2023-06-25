@@ -1,9 +1,11 @@
 <?php
 
-use App\Jobs\SendMailJob;
+use App\Http\Controllers\Controller\AuthController;
+use App\Http\Controllers\RunController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Controller\RunController;
-use App\Http\Controllers\Controller\ApiController;
+use App\Http\Controllers\Controller\OrderController;
+use App\Http\Controllers\Controller\ClientController;
+
 //use Mail;
 /*
 |--------------------------------------------------------------------------
@@ -24,18 +26,20 @@ Route::get('/', function () {
 Route::post('/webhook', [RunController::class, '__invoke']);
 
 
-Route::get('login', [ApiController::class, 'login']);
+Route::get('login', [AuthController::class, 'showLogin']);
+Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('info', [ApiController::class, 'info']);
+Route::get('order', [OrderController::class, 'index'])->name('order.index');
 
+Route::get('client', [ClientController::class, 'index'])->name('client.index');
 
-Route::get('send', function() {
-    $details = [
-        'full_name' => 'Ismoil',
-        'address' => "Yashnobod tuzel 12/23",
-        'phone' => 901234567,
-    ];
-
-    \Illuminate\Support\Facades\Mail::to('sales@gmail.com')->send(new \App\Mail\OrderShipped($details));
-    dd('okey');
-});
+//Route::get('send', function() {
+//    $details = [
+//        'full_name' => 'Maxmudov Ismoil',
+//        'address' => "Yashnobod Olmos 12/23 test",
+//        'phone' => 901234567,
+//    ];
+//    \Illuminate\Support\Facades\Mail::to('I.Maxmudov@etc.uz')->send(new \App\Mail\OrderShipped($details));
+//    dd('ok');
+//});
